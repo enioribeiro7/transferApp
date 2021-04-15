@@ -1,0 +1,32 @@
+version: "3.7"
+services:
+  app:
+    build:
+      args:
+        user: sammy
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    image: transferapp
+    container_name: transferapp-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+        - .:/var/www
+    networks:
+      - mysql-compose-network
+  nginx:
+    image: nginx:alpine
+    container_name: transferapp-nginx
+    restart: unless-stopped
+    ports:
+      - 8000:80
+    volumes:
+      - ./:/var/www
+      - ./docker-compose/nginx:/etc/nginx/conf.d/
+    networks:
+      - mysql-compose-network
+
+networks:
+  mysql-compose-network:
+    driver: bridge
