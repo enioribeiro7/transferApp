@@ -14,7 +14,24 @@ services:
     volumes:
         - .:/var/www
     networks:
-      - mysql-compose-network
+      - transferapp-network
+  mysqlsrv:
+    image: mysql:5.7
+    environment:
+        MYSQL_ROOT_PASSWORD: "MySql2019!"
+        MYSQL_DATABASE: "testedb"
+    ports:
+        - "3306:3306"
+    volumes:
+        - /cygdrive/c/Users/enio/projetos/tranferApp/MySql:/var/lib/mysql
+    networks:
+        - transferapp-network
+  adminer:
+    image: adminer
+    ports:
+        - "8080:8080"
+    networks:
+        - transferapp-network
   nginx:
     image: nginx:alpine
     container_name: transferapp-nginx
@@ -25,8 +42,8 @@ services:
       - ./:/var/www
       - ./docker-compose/nginx:/etc/nginx/conf.d/
     networks:
-      - mysql-compose-network
+      - transferapp-network
 
 networks:
-  mysql-compose-network:
+  transferapp-network:
     driver: bridge
