@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\TransferValidateController;
 use App\Http\Controllers\NotificationTransferController;
 use App\User;
 use App\Balance;
@@ -11,42 +10,23 @@ use App\Balance;
 class TransferController extends Controller
 {
 
-    public function __construct(TransferValidateController $TransferValidateController, NotificationTransferController $NotificationTransferController)
+    public function __construct(NotificationTransferController $NotificationTransferController)
     {
-        $this->TransferValidateController = $TransferValidateController;
         $this->NotificationTransferController = $NotificationTransferController;
     }
 
     public function transferAction(Request $request){
 
-        //Pegando objetos da transferência
+        //VALIDA DADOS DA REQUISIÇÃO
+
+        //PEGANDO OBJETOS DA TRANSFERÊNCIA
         $payer = User::where('cpf_cnpj', $request->payer)->first();
         $payee = User::where('cpf_cnpj', $request->payee)->first();
         $balancePayer = Balance::where('user_uuid',$payer->uuid)->first();
 
         //VALIDA DADOS DO USUÁRIO (SE PAGADOR É USUÁRIO, SE EXISTE O PAGADOR E RECEPTOR)
 
-        //VALIDA DADOS DA REQUISIÇÃO
 
-        //VALIDA SALDO
-
-        //CONSULTA VALIDADOR EXTERNO
-        $authorization = $this->TransferValidateController->getAuthorization();
-        if ($authorization != 200) {
-
-            //remove saldo do usuário
-            return response()->json([
-                "message" => "Tranferência não autorizada"
-            ], 401); 
-
-        }
-
-
-        //Atualiza saldo do usuário
-        $newBalancePayer = floatval($balancePayer->balance) - floatval($request->valor);
-        $balance = Balance::find($balancePayer->id);
-        $balance->balance =  $newBalancePayer;
-        $balance->save();
 
         //Serviço de Notificação
         $notification = $this->NotificationTransferController->sentNotification();

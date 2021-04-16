@@ -2,21 +2,41 @@
 
 namespace App\Services;
 
+use App\User;
+use App\Services\FraudCheckService;
 
-class TransferService {
+class TransferService 
+{
 
     
-/*     public function __construct() {
-        return "construct function was initialized.";
-    } */
+    public function __construct(FraudCheckService $fraudCheckService) 
+    {
+        $this->fraudCheckService = $fraudCheckService;
+    }
 
-    public function processTranfer() {
+    public function transfer(User $from, User $to, float $amount) {
         
-/*         $users = User::All();
+        //cherck saldo
 
-        $students = User::get()->toJson(JSON_PRETTY_PRINT);
+        //service de autorização
+        $authorization = $this->fraudCheckService->check($from, $to, $amount);
 
-        return response($students, 200); */
+        if ($authorization == true) {
+
+            return response()->json([
+                "message" => "Tranferência não autorizada"
+            ], 401);
+
+        }
+
+/* 
+        $newBalancePayer = floatval($balancePayer->balance) - floatval($request->valor);
+        $balance = Balance::find($balancePayer->id);
+        $balance->balance =  $newBalancePayer;
+        $balance->save(); */
+
+        $notification = $this->NotificationTransferController->sentNotification();
+
     }
 
 
