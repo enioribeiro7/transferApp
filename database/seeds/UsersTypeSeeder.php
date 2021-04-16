@@ -24,7 +24,7 @@ class UsersTypeSeeder extends Seeder
         DB::table('users_type')->insert([
             'name' => 'Usuário',
             'status' => 1,
-            'uuid' => '0ebd676f-bc00-4171-b2cd-8868e1fe567e',
+            'uuid' => '4abc3646-9f97-49b1-ad30-eaff9b1e0eb3',
             'created_at' => \Carbon\Carbon::now(),
             'updated_at' => \Carbon\Carbon::now(),            
         ]);        

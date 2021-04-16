@@ -15,6 +15,8 @@ class CreateBalancesTable extends Migration
     {
         Schema::create('balances', function (Blueprint $table) {
             $table->id();
+            $table->uuid('user_uuid');
+            $table->decimal('balance');
             $table->timestamps();
         });
     }
