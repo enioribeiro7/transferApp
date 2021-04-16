@@ -17,3 +17,13 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
+//User Routes
+Route::get('/get/users', 'UserController@getUsers')->name('getUsers');
+
+//Route::post('/insert/new/user', 'UserController@insertNewUser')->name('insertNewUser');
+
+
+//Transfer Routes
+Route::get('/tranfer/action', 'TransferController@transferAction')->name('getUsers');

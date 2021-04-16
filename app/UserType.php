@@ -9,7 +9,7 @@ class UserType extends Model
 
     public $timestamps = true;
 
-    
+        
     protected $fillable = [
         'name', 'status','uid'
     ];

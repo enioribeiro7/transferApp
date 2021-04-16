@@ -19,7 +19,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','cpf_cnpj','type','uuid'
+        'name', 'email', 'password','cpf_cnpj','user_type_uuid','uuid'
     ];
 
     /**
