@@ -20,7 +20,7 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('cpf_cnpj');
-            $table->integer('type')->nullable();
+            $table->string('type')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
