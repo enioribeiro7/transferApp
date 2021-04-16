@@ -59,22 +59,4 @@ class TransferController extends Controller
 
     }
 
-
-    public function teste(){
-
-        $requestData = '{
-            "valor": "50,00",
-            "payer": "33922288819",
-            "payee": "10702387401"
-        }';
-
-        $requestData = json_decode($requestData);
-
-        $payer = User::where('cpf_cnpj', $requestData->payer)->first();
-        $payee = User::where('cpf_cnpj', $requestData->payee)->first();
-
-        return json_encode($payer);
-
-
-    }
 }

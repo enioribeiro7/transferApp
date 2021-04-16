@@ -27,4 +27,3 @@ Route::get('/get/users', 'UserController@getUsers')->name('getUsers');
 
 //Transfer Routes
 Route::post('/transfer/action', 'TransferController@transferAction')->name('transferAction');
-Route::get('/teste', 'TransferController@teste')->name('teste');
