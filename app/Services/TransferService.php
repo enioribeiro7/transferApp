@@ -16,7 +16,7 @@ class TransferService
 
     public function transfer(User $from, User $to, float $amount) {
         
-        //cherck saldo
+        //check saldo
 
         //service de autorização
         $authorization = $this->fraudCheckService->check($from, $to, $amount);

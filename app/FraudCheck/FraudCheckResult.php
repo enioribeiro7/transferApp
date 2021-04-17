@@ -2,7 +2,7 @@
 
 namespace App\FraudCheck;
 
-use Illuminate\Http\Response;
+use Illuminate\Http\Client\Response;
 
 class FraudCheckResult 
 {
@@ -15,10 +15,10 @@ class FraudCheckResult
 
     public function isAuthorized(): bool
     {
-        $this->payLoad->status;
-        $body = json_decode($this->payLoad->getBody());
+        
+        $body = json_decode($this->httpResponse);
 
-        if ($this->payLoad->status == 200 && $body['message'] == 'Enviado') {
+        if ($this->httpResponse->status() == 200 && $body->message == 'Autorizado') {
             return true;
         }
         

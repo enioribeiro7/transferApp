@@ -3,16 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\NotificationTransferController;
+use App\Services\TransferService;
 use App\User;
 use App\Balance;
+use Illuminate\Support\Facades\Http;
 
 class TransferController extends Controller
 {
 
-    public function __construct(NotificationTransferController $NotificationTransferController)
+    public function __construct(TransferService $transferService)
     {
-        $this->NotificationTransferController = $NotificationTransferController;
+        $this->transferService = $transferService;
     }
 
     public function transferAction(Request $request){
@@ -27,9 +28,12 @@ class TransferController extends Controller
         //VALIDA DADOS DO USUÁRIO (SE PAGADOR É USUÁRIO, SE EXISTE O PAGADOR E RECEPTOR)
 
 
+        //Chamando o servico de transferência
+        $this->transferService->transfer($payer, $payee, $balancePayer->balance);
+
 
         //Serviço de Notificação
-        $notification = $this->NotificationTransferController->sentNotification();
+        //$notification = $this->NotificationTransferController->sentNotification();
 
 
         //Retornando o Sucesso
