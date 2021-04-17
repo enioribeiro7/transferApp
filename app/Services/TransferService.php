@@ -4,36 +4,42 @@ namespace App\Services;
 
 use App\User;
 use App\Services\FraudCheckService;
+use App\Services\CheckBalanceService;
 
 class TransferService 
 {
 
     
-    public function __construct(FraudCheckService $fraudCheckService) 
+    public function __construct(FraudCheckService $fraudCheckService, CheckBalanceService $checkBalanceService) 
     {
         $this->fraudCheckService = $fraudCheckService;
+        $this->checkBalanceService = $checkBalanceService;
     }
 
     public function transfer(User $from, User $to, float $amount) {
         
         //check saldo
+        $hasBalance = $this->checkBalanceService->check($from, $amount);
+
+        if ($hasBalance == false) {
+
+            return response()->json([
+                "message" => "Tranferência não autorizada, saldo insuficiente"
+            ], 401);
+
+        }
 
         //service de autorização
         $authorization = $this->fraudCheckService->check($from, $to, $amount);
 
-        if ($authorization == true) {
 
+        if ($authorization == false) {
             return response()->json([
                 "message" => "Tranferência não autorizada"
             ], 401);
 
         }
 
-/* 
-        $newBalancePayer = floatval($balancePayer->balance) - floatval($request->valor);
-        $balance = Balance::find($balancePayer->id);
-        $balance->balance =  $newBalancePayer;
-        $balance->save(); */
 
         $notification = $this->NotificationTransferController->sentNotification();
 
