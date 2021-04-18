@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Repositories\BalanceRepository;
 
-class CheckBalanceService 
+class BalanceService 
 {
 
     public function __construct(BalanceRepository $balanceRepository) 
