@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\NotAuthorizedTransferException;
 use App\Exceptions\NotEnoughBalanceException;
 use Illuminate\Http\Request;
 use App\Services\TransferService;
@@ -32,9 +33,17 @@ class TransferController extends Controller
             $result = $this->transferService->transfer($payer, $payee, $request->value);
 
         } catch (NotEnoughBalanceException $exception) {
+            
             return response()->json([
                 "message" => $exception->getMessage()
             ], 401);
+
+        } catch (NotAuthorizedTransferException $exception) {
+
+            return response()->json([
+                "message" => $exception->getMessage()
+            ], 401);
+
         }
 
         

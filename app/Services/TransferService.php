@@ -22,17 +22,16 @@ class TransferService
         $hasBalance = $this->checkBalanceService->check($from, $amount);
 
         if ($hasBalance == false) {
-            throw new \App\Exceptions\NotEnoughBalanceException('Not Enough Balance');
+            throw new \App\Exceptions\NotEnoughBalanceException('Saldo Insuficiente');
         }
-
+        
         //service de autorização
         $authorization = $this->fraudCheckService->check($from, $to, $amount);
-
-
-        if ($authorization == false) {
-            return response()->json([
-                "message" => "Tranferência não autorizada"
-            ], 401);
+        
+        
+        if ($authorization != false) {
+            
+            throw new \App\Exceptions\NotAuthorizedTransferException('Transferência não Autorizada');
 
         }
 
