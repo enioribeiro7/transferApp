@@ -22,11 +22,7 @@ class TransferService
         $hasBalance = $this->checkBalanceService->check($from, $amount);
 
         if ($hasBalance == false) {
-
-            return response()->json([
-                "message" => "Tranferência não autorizada, saldo insuficiente"
-            ], 401);
-
+            throw new \App\Exceptions\NotEnoughBalanceException('Not Enough Balance');
         }
 
         //service de autorização

@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use App\Balance;
-use Illuminate\Support\Facades\DB;
 
 class BalanceRepository
 {

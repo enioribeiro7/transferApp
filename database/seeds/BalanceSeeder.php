@@ -13,7 +13,7 @@ class BalanceSeeder extends Seeder
     public function run()
     {
         DB::table('balances')->insert([
-            'user_uuid' => '4abc3646-9f97-49b1-ad30-eaff9b1e0eb3',
+            'user_uuid' => '879620ac-2efe-4b09-91a5-d4a949af09d4',
             'balance' => 100.00,
             'created_at' => \Carbon\Carbon::now(),
             'updated_at' => \Carbon\Carbon::now(),
