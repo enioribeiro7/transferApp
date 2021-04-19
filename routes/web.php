@@ -1,5 +1,6 @@
 <?php
 
+use App\Mail\NotificationTransferSentMail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,8 +20,19 @@ Route::get('/', function () {
 
 
 
-/* //User Routes
-Route::get('/get/users', 'UserController@getUsers')->name('getUsers');
+//Test Mail Route
+Route::get('/email/notification', function(){
+
+    $user = new \stdClass();
+    $user->email = 'enio7.ribeiro@gmail.com';
+    $user->from = 'Enio Ribero';
+    $user->to = 'Jose Marques';
+    $user->amount = '150,00';
+
+    //return new NotificationTransferSentMail($user);
+
+    //\Illuminate\Support\Facades\Mail::send(new NotificationTransferSentMail($user));
+
+});
 
 Route::post('/insert/new/user', 'UserController@insertNewUser')->name('insertNewUser');
- */

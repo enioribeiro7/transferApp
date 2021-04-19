@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Clients\NotificationClient;
+use App\Mail\NotificationTransferReceivedMail;
+use App\Mail\NotificationTransferSentMail;
+use Illuminate\Support\Facades\Mail;
 
 class NotificationService 
 {
@@ -16,6 +19,13 @@ class NotificationService
     public function sent($from, $to, $amount)
     {
         $result = $this->notificationClient->sentNotification($from, $to, $amount);
+
+        if ($result->wasSent() == true) {
+
+            Mail::send(new NotificationTransferSentMail($from, $to, $amount));
+            Mail::send(new NotificationTransferReceivedMail($from, $to, $amount));
+
+        }
 
         return $result->wasSent();
     }

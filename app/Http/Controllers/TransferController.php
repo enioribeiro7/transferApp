@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\NotAuthorizedTransferException;
 use App\Exceptions\NotEnoughBalanceException;
+use App\Exceptions\NotificationTransferException;
 use Illuminate\Http\Request;
 use App\Services\TransferService;
 use App\User;
@@ -39,6 +40,11 @@ class TransferController extends Controller
             ], 401);
 
         } catch (NotAuthorizedTransferException $exception) {
+
+            return response()->json([
+                "message" => $exception->getMessage()
+            ], 401);
+        } catch (NotificationTransferException $exception) {
 
             return response()->json([
                 "message" => $exception->getMessage()

@@ -30,16 +30,16 @@ class TransferService
         //service de autorização
         $authorization = $this->fraudCheckService->check($from, $to, $amount);
 
-        if ($authorization != false) {
+        if ($authorization == false) {
             
             throw new \App\Exceptions\NotAuthorizedTransferException('Transferência não Autorizada');
         }
-
+        
         //Envia notificação
         $notification = $this->notificationService->sent($from, $to, $amount);
-
+        
         if ($notification == false) {
-            return 'Notificacao nao enviada';
+            throw new \App\Exceptions\NotAuthorizedTransferException('Transferência realizada, notificação agendada');
         }
 
     }
