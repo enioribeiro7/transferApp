@@ -20,11 +20,14 @@ class NotificationService
     {
         $result = $this->notificationClient->sentNotification($from, $to, $amount);
 
-        if ($result->wasSent() == true) {
-
+        if ($result->wasSent() != true) {
             Mail::send(new NotificationTransferSentMail($from, $to, $amount));
             Mail::send(new NotificationTransferReceivedMail($from, $to, $amount));
+        }else {
 
+            //Colocar na fila
+            Mail::queue(new NotificationTransferSentMail($from, $to, $amount));
+            Mail::queue(new NotificationTransferReceivedMail($from, $to, $amount));
         }
 
         return $result->wasSent();

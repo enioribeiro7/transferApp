@@ -52,7 +52,11 @@ class TransferController extends Controller
         }
 
         
-        return $result;
+        if ($result) {
+            return response()->json([
+                "message" => 'Tranferência realizada com sucesso!'
+            ], 200);
+        }
         
     }
 

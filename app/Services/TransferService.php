@@ -42,6 +42,8 @@ class TransferService
             throw new \App\Exceptions\NotAuthorizedTransferException('Transferência realizada, notificação agendada');
         }
 
+        return true;
+
     }
 
 
