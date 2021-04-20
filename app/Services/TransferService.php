@@ -34,6 +34,11 @@ class TransferService
             
             throw new \App\Exceptions\NotAuthorizedTransferException('Transferência não Autorizada');
         }
+
+        //Remove/adiciona Saldo do $from para $to
+        $removeBalance = $this->balanceService->remove($from, $amount);
+        $addBalance = $this->balanceService->add($to, $amount);
+
         
         //Envia notificação
         $notification = $this->notificationService->sent($from, $to, $amount);

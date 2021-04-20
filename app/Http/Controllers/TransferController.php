@@ -8,6 +8,7 @@ use App\Exceptions\NotificationTransferException;
 use Illuminate\Http\Request;
 use App\Services\TransferService;
 use App\User;
+use Illuminate\Support\Facades\Validator;
 
 class TransferController extends Controller
 {
@@ -20,7 +21,17 @@ class TransferController extends Controller
     public function transferAction(Request $request){
 
         //VALIDA DADOS DA REQUISIÇÃO
+        $validator = Validator::make($request->all(), [
+            'payer' => 'required|integer',
+            'payee' => 'required|integer',
+            'amount' => 'required',
+        ],[
+            'required' => 'The :attribute is required'
+        ]);
 
+        if ($validator->fails()) {
+            return response()->json([$validator->errors()], 400);
+        }
 
         //PEGANDO OBJETOS DA TRANSFERÊNCIA
         $payer = User::where('cpf_cnpj', $request->payer)->first();
@@ -31,7 +42,7 @@ class TransferController extends Controller
         //Chamando o servico de transferência
         try {
 
-            $result = $this->transferService->transfer($payer, $payee, $request->value);
+            $result = $this->transferService->transfer($payer, $payee, $request->amount);
 
         } catch (NotEnoughBalanceException $exception) {
             

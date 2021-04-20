@@ -21,6 +21,7 @@ class NotificationService
 
         if ($result->wasSent() != true) {
 
+            //Agenda notificação por email
             NotificationTransferEmailJob::dispatch($from, $to, $amount)->delay( now()->addSeconds('15'));
         }
 
