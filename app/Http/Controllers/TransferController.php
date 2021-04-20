@@ -32,41 +32,39 @@ class TransferController extends Controller
         if ($validator->fails()) {
             return response()->json([$validator->errors()], 400);
         }
-
+        
         //PEGANDO OBJETOS DA TRANSFERÊNCIA
         $payer = User::where('cpf_cnpj', $request->payer)->first();
         $payee = User::where('cpf_cnpj', $request->payee)->first();
-
+        
         //VALIDA DADOS DO USUÁRIO (SE PAGADOR É USUÁRIO, SE EXISTE O PAGADOR E RECEPTOR)
+        if (!$payer || $payer->user_type_uuid != '4abc3646-9f97-49b1-ad30-eaff9b1e0eb3') {
+            return response()->json(["message" => 'Payer not allowed of payer does not exist'], 401);
+        }
+
+        if (!$payee) {
+            return response()->json(["message" => 'Payee does not exist'], 401);
+        }
 
         //Chamando o servico de transferência
         try {
-
             $result = $this->transferService->transfer($payer, $payee, $request->amount);
 
         } catch (NotEnoughBalanceException $exception) {
-            
-            return response()->json([
-                "message" => $exception->getMessage()
-            ], 401);
+
+            return response()->json(["message" => $exception->getMessage()], 401);
 
         } catch (NotAuthorizedTransferException $exception) {
 
-            return response()->json([
-                "message" => $exception->getMessage()
-            ], 401);
+            return response()->json(["message" => $exception->getMessage()], 401);
+
         } catch (NotificationTransferException $exception) {
 
-            return response()->json([
-                "message" => $exception->getMessage()
-            ], 401);
+            return response()->json(["message" => $exception->getMessage()], 401);
         }
 
-        
         if ($result) {
-            return response()->json([
-                "message" => 'Tranferência realizada com sucesso!'
-            ], 200);
+            return response()->json(["message" => 'Tranferência realizada com sucesso!'], 200);
         }
         
     }
