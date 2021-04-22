@@ -58,4 +58,18 @@ class BalanceRepositoryTest extends TestCase
 
         $this->assertSame($foundBalance, $result);
     }
+
+    public function testSave()
+    {
+        $balance = $this->getMockBuilder(Balance::class)
+            ->setMethods(['save'])
+            ->getMock();
+
+        $balance->expects($this->once())
+            ->method('save');
+
+        $repository = new BalanceRepository($balance);
+        $repository->save($balance);
+
+    }
 }
