@@ -39,7 +39,7 @@ class TransferController extends Controller
         
         //VALIDA DADOS DO USUÁRIO (SE PAGADOR É USUÁRIO, SE EXISTE O PAGADOR E RECEPTOR)
         if (!$payer || $payer->user_type_uuid != '4abc3646-9f97-49b1-ad30-eaff9b1e0eb3') {
-            return response()->json(["message" => 'Payer not allowed of payer does not exist'], 401);
+            return response()->json(["message" => 'Payer not allowed or payer does not exist'], 401);
         }
 
         if (!$payee) {
@@ -49,7 +49,8 @@ class TransferController extends Controller
         //Chamando o servico de transferência
         try {
             $result = $this->transferService->transfer($payer, $payee, $request->amount);
-
+            return response()->json(["message" => 'Transfer Success!'], 200);
+            
         } catch (NotEnoughBalanceException $exception) {
 
             return response()->json(["message" => $exception->getMessage()], 401);
@@ -60,11 +61,7 @@ class TransferController extends Controller
 
         } catch (NotificationTransferException $exception) {
 
-            return response()->json(["message" => $exception->getMessage()], 401);
-        }
-
-        if ($result) {
-            return response()->json(["message" => 'Tranferência realizada com sucesso!'], 200);
+            return response()->json(["message" => $exception->getMessage()], 200);
         }
         
     }

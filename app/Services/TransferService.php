@@ -24,7 +24,7 @@ class TransferService
         $hasBalance = $this->balanceService->check($from, $amount);
 
         if ($hasBalance == false) {
-            throw new \App\Exceptions\NotEnoughBalanceException('Saldo Insuficiente');
+            throw new \App\Exceptions\NotEnoughBalanceException('Not Balance Suficient');
         }
         
         //service de autorização
@@ -32,7 +32,7 @@ class TransferService
 
         if ($authorization == false) {
             
-            throw new \App\Exceptions\NotAuthorizedTransferException('Transferência não Autorizada');
+            throw new \App\Exceptions\NotAuthorizedTransferException('Transfer not Allowed');
         }
 
         //Remove/adiciona Saldo do $from para $to
@@ -44,7 +44,7 @@ class TransferService
         $notification = $this->notificationService->sent($from, $to, $amount);
         
         if ($notification == false) {
-            throw new \App\Exceptions\NotAuthorizedTransferException('Transferência realizada, notificação agendada');
+            throw new \App\Exceptions\NotificationTransferException('Transfer success, notification Scheduled');
         }
 
         return true;

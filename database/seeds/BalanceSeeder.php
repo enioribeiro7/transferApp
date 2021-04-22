@@ -12,6 +12,7 @@ class BalanceSeeder extends Seeder
      */
     public function run()
     {
+        //usuário
         DB::table('balances')->insert([
             'user_uuid' => '879620ac-2efe-4b09-91a5-d4a949af09d4',
             'balance' => 100.00,
@@ -19,8 +20,9 @@ class BalanceSeeder extends Seeder
             'updated_at' => \Carbon\Carbon::now(),
         ]);
 
+        //lojista
         DB::table('balances')->insert([
-            'user_uuid' => '879620ac-2efe-4b09-91a5-d4a949af09d4',
+            'user_uuid' => '27ac5a4e-afb7-4da1-8ba8-9e17ef38d2f4',
             'balance' => 0,
             'created_at' => \Carbon\Carbon::now(),
             'updated_at' => \Carbon\Carbon::now(),
