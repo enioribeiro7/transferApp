@@ -13,38 +13,16 @@ class BalanceRepository
 		$this->balance = $balance;
 	}
 
-	public function getBalanceByUserUuid($uuid): float
+	public function getBalanceByUserUuid(string $uuid): ?Balance
 	{
+        $collection = $this->balance->where('user_uuid', $uuid);
 
-        $balance = $this->balance->where('user_uuid', $uuid)->first();
-		
-        return $balance->balance;
-		
+        return $collection->first();
 	}
 	
-	public function removeBalance($uuid, $amount): bool
+	public function save(Balance $balance): void
 	{
-		$balance = $this->balance->where('user_uuid', $uuid)->first();
-
-		$newBalance = floatval($balance->balance) - floatval($amount);
-		$balance->balance = $newBalance;
 		$balance->save();
-		
-		return true;
-		
-	}
-	
-	
-	public function addBalance($uuid, $amount): bool 
-	{
-		$balance = $this->balance->where('user_uuid', $uuid)->first();
-
-		$newBalance = floatval($balance->balance) + floatval($amount);
-		$balance->balance = $newBalance;
-		$balance->save();
-
-		return true;
-
 	}
 
 }
