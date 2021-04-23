@@ -33,7 +33,7 @@ class TransferService
         
         $hasBalance = $this->balanceService->check($from, $amount);
         if (!$hasBalance) {
-            throw new \App\Exceptions\NotEnoughBalanceException('Not Balance Suficient');
+            throw new \App\Exceptions\NotEnoughBalanceException('Not enough balance');
         }
           
         //service de autorização
