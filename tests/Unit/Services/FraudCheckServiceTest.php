@@ -32,9 +32,7 @@ class FraudCheckServiceTest extends TestCase
         
         $fraudCheckService = new FraudCheckService($fraudCheckClient);
         $result = $fraudCheckService->check(new User(), new User(), 0);
-
         $this->assertEquals($expected, $result);
-        
     }
 
     public static function checkProvider(): array
