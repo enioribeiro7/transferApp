@@ -67,4 +67,29 @@ class BalanceServiceTest extends TestCase
     
     }
 
+    public function testCheckShouldReturnFalseWhenBalanceUserIsNull()
+    {
+        $uuid = 'uueuwquiieeir';
+        $amount = 100;
+
+        $balanceRepository = $this->getMockBuilder(BalanceRepository::class)
+            ->setMethods(['getBalanceByUserUuid'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        
+        $balanceRepository->expects($this->once())
+            ->method('getBalanceByUserUuid')
+            ->with($uuid)
+            ->willReturn(null);
+            
+        $user = new User();
+        $user->uuid = $uuid;
+
+        $service = new BalanceService($balanceRepository);
+        $result = $service->check($user, $amount);
+
+        $this->assertFalse($result);
+    
+    }
+    
 }
