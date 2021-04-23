@@ -2,7 +2,7 @@
 
 namespace App\Services;
 use App\Clients\FraudCheckClient;
-
+use App\User;
 
 class FraudCheckService 
 {
@@ -12,7 +12,7 @@ class FraudCheckService
         $this->fraudCheckClient = $fraudCheckClient;
     }
 
-    public function check($from, $to, $amount): bool
+    public function check(User $from, User $to, float $amount): bool
     {
         $result = $this->fraudCheckClient->checkTransfer();
 
