@@ -6,26 +6,10 @@ use App\User;
 
 class UserService {
 
-    
-/*     public function __construct() {
-        return "construct function was initialized.";
-    } */
+    protected const USER_UUID_SHOPKEEPER = '4abc3646-9f97-49b1-ad30-eaff9b1e0eb3';
 
-    public function getAllUsers() {
-        
-        $users = User::All();
-
-        $students = User::get()->toJson(JSON_PRETTY_PRINT);
-
-        return response($students, 200);
-    }
-
-
-    public function createNewUser(){
-
-       /*  $user = new User;
-        $user->name = $request->name;
-        $user->course = $request->course;
-        $user->save(); */
+    public function isEligibleToTransfer(User $user): bool
+    {
+        return $user->user_type_uuid !== self::USER_UUID_SHOPKEEPER;
     }
 }
