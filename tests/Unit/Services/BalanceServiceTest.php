@@ -3,11 +3,14 @@
 namespace Tests\Unit\Services;
 
 use App\Balance;
+use App\Exceptions\NotEnoughBalanceException;
 use App\Repositories\BalanceRepository;
 use App\Services\BalanceService;
 use App\User;
+use Exception;
 use PHPUnit\Framework\TestCase;
 use Illuminate\Database\Eloquent\Collection;
+use PHPUnit\Framework\ExpectationFailedException;
 
 class BalanceServiceTest extends TestCase
 {
@@ -91,5 +94,64 @@ class BalanceServiceTest extends TestCase
         $this->assertFalse($result);
     
     }
-    
+
+    public function testWithdraw()
+    {
+        $uuid = 'uueuwquiieeir';
+        $amount = 100;
+
+        $balanceRepository = $this->getMockBuilder(BalanceRepository::class)
+            ->setMethods(['getBalanceByUserUuid','save'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $balance = new Balance();
+        $balance->balance = 50;
+        
+        $balanceRepository->expects($this->once())
+            ->method('getBalanceByUserUuid')
+            ->with($uuid)
+            ->willReturn($balance);
+
+        $balanceRepository->expects($this->once())
+            ->method('save')
+            ->with($balance);
+
+        $user = new User();
+        $user->uuid = $uuid;
+
+        $service = new BalanceService($balanceRepository);
+        $result = $service->withdraw($user, $amount);
+    }
+
+    public function testWithdrawWhenBalanceIsNull()
+    {
+        $this->expectException(Exception::class);
+
+        $uuid = 'uueuwquiieeir';
+        $amount = 100;
+
+        $balanceRepository = $this->getMockBuilder(BalanceRepository::class)
+            ->setMethods(['getBalanceByUserUuid','save'])
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $balance = new Balance();
+        $balance->balance = 50;
+        
+        $balanceRepository->expects($this->once())
+            ->method('getBalanceByUserUuid')
+            ->with($uuid)
+            ->willReturn(null);
+
+        $balanceRepository->expects($this->never())
+            ->method('save')
+            ->with($balance);
+
+        $user = new User();
+        $user->uuid = $uuid;
+
+        $service = new BalanceService($balanceRepository);
+        $result = $service->withdraw($user, $amount);
+    }    
 }
