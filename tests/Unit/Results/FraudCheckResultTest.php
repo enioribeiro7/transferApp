@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Repository;
+namespace Tests\Unit\Results;
 
 use App\FraudCheck\FraudCheckResult;
 use Illuminate\Http\Client\Response;
