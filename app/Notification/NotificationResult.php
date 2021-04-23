@@ -16,9 +16,9 @@ class NotificationResult
     public function wasSent(): bool
     {
         
-        $body = json_decode($this->httpResponse);
+        $body = $this->httpResponse->json();
 
-        if ($this->httpResponse->status() == 200 && $body->message == 'Enviado') {
+        if ($this->httpResponse->status() == 200 && $body['message'] == 'Enviado') {
             return true;
         }
         
