@@ -3,6 +3,7 @@
 namespace App\FraudCheck;
 
 use Illuminate\Http\Client\Response;
+use Symfony\Component\HttpFoundation\Response as HttpFoundationResponse;
 
 class FraudCheckResult 
 {
@@ -15,10 +16,9 @@ class FraudCheckResult
 
     public function isAuthorized(): bool
     {
-        
         $body = $this->httpResponse->json();
 
-        if ($this->httpResponse->status() == 200 && $body['message'] == 'Autorizado') {
+        if ($this->httpResponse->status() === HttpFoundationResponse::HTTP_OK && $body['message'] == 'Autorizado') {
             return true;
         }
         
