@@ -9,12 +9,16 @@ use Illuminate\Http\Request;
 use App\Services\TransferService;
 use App\User;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 
 class TransferController extends Controller
 {
+    public const MESSAGE_SUCCESS = 'Transfer Success!';
+    
 
-    public function __construct(TransferService $transferService)
-    {
+    public function __construct(
+        TransferService $transferService
+    ) {
         $this->transferService = $transferService;
     }
 
@@ -30,38 +34,36 @@ class TransferController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([$validator->errors()], 400);
+            return response()->json([$validator->errors()], Response::HTTP_BAD_REQUEST);
         }
         
-        //PEGANDO OBJETOS DA TRANSFERÊNCIA
         $payer = User::where('cpf_cnpj', $request->payer)->first();
         $payee = User::where('cpf_cnpj', $request->payee)->first();
-        
-        //VALIDA DADOS DO USUÁRIO (SE PAGADOR É USUÁRIO, SE EXISTE O PAGADOR E RECEPTOR)
-        if (!$payer || $payer->user_type_uuid != '4abc3646-9f97-49b1-ad30-eaff9b1e0eb3') {
-            return response()->json(["message" => 'Payer not allowed or payer does not exist'], 401);
+
+        if (!$payee || !$payer) {
+            return response()->json(["message" => 'Payee or Payer do not exist'], Response::HTTP_UNAUTHORIZED);
         }
 
-        if (!$payee) {
-            return response()->json(["message" => 'Payee does not exist'], 401);
-        }
-
-        //Chamando o servico de transferência
         try {
             $result = $this->transferService->transfer($payer, $payee, $request->amount);
-            return response()->json(["message" => 'Transfer Success!'], 200);
+
+            return response()->json(["message" => self::MESSAGE_SUCCESS], Response::HTTP_OK);
             
         } catch (NotEnoughBalanceException $exception) {
 
-            return response()->json(["message" => $exception->getMessage()], 401);
+            return response()->json(["message" => $exception->getMessage()], Response::HTTP_UNAUTHORIZED);
 
         } catch (NotAuthorizedTransferException $exception) {
 
-            return response()->json(["message" => $exception->getMessage()], 401);
+            return response()->json(["message" => $exception->getMessage()], Response::HTTP_UNAUTHORIZED);
 
         } catch (NotificationTransferException $exception) {
 
-            return response()->json(["message" => $exception->getMessage()], 200);
+            return response()->json(["message" => self::MESSAGE_SUCCESS], Response::HTTP_OK);
+
+        } catch (\Throwable $exception) {
+
+            return response()->json(["message" => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         
     }
