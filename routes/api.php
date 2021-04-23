@@ -19,11 +19,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 
-//User Routes
-Route::get('/get/users', 'UserController@getUsers')->name('getUsers');
-
-//Route::post('/insert/new/user', 'UserController@insertNewUser')->name('insertNewUser');
-
-
 //Transfer Routes
 Route::post('/transfer/action', 'TransferController@transferAction')->name('transferAction');
