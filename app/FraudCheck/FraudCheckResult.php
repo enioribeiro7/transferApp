@@ -16,9 +16,9 @@ class FraudCheckResult
     public function isAuthorized(): bool
     {
         
-        $body = json_decode($this->httpResponse);
+        $body = $this->httpResponse->json();
 
-        if ($this->httpResponse->status() == 200 && $body->message == 'Autorizado') {
+        if ($this->httpResponse->status() == 200 && $body['message'] == 'Autorizado') {
             return true;
         }
         
