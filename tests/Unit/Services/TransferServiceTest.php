@@ -12,46 +12,47 @@ use App\Services\NotificationService;
 use App\Services\TransferService;
 use App\Services\UserService;
 use App\User;
+use ErrorException;
+use Exception;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
 class TransferServiceTest extends TestCase
 {
     
-    public function testTransferShouldReturnExceptionWhenUserIsNotEligible()
+    public function testTransferShouldThrowExceptionWhenUserIsNotEligible()
     {
         $this->expectException(NotElegibleToTransferException::class);
         $from = new User();
         $to = new User();
         $amount = 150.00;
         
-        
         $fraudCheckService = $this->getMockBuilder(FraudCheckService::class)
-        ->setMethods(['check'])
-        ->disableOriginalConstructor()
-        ->getMock();
+            ->setMethods(['check'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $fraudCheckService->expects($this->never())
-        ->method('check')
-        ->with($from, $to, $amount)
-        ->willReturn(true);
+            ->method('check')
+            ->with($from, $to, $amount)
+            ->willReturn(true);
         
         $balanceService = $this->getMockBuilder(BalanceService::class)
-        ->setMethods(['check'])
-        ->disableOriginalConstructor()
-        ->getMock();
+            ->setMethods(['check'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $balanceService->expects($this->never())
-        ->method('check')
-        ->with($from, $amount)
-        ->willReturn(true);
+            ->method('check')
+            ->with($from, $amount)
+            ->willReturn(true);
         
         $notificationService = $this->getMockBuilder(NotificationService::class)
-        ->setMethods(['sent'])
-        ->disableOriginalConstructor()
-        ->getMock();
+            ->setMethods(['sent'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $notificationService->expects($this->never())        
-        ->method('sent')
-        ->with($from, $to, $amount)
-        ->willReturn(true);
+            ->method('sent')
+            ->with($from, $to, $amount)
+            ->willReturn(true);
         
         $userService = $this->getMockBuilder(UserService::class)
             ->setMethods(['isEligibleToTransfer'])
@@ -64,16 +65,14 @@ class TransferServiceTest extends TestCase
 
         $transferService = new TransferService($fraudCheckService, $balanceService, $notificationService, $userService);
         $transferService->transfer($from, $to, $amount);
-    
     }
 
-    public function testTransferShouldReturnExceptionWhenUserDoesNotHaveBalance()
+    public function testTransferShouldThrowExceptionWhenUserDoesNotHaveBalance()
     {
         $this->expectException(NotEnoughBalanceException::class);
         $from = new User();
         $to = new User();
         $amount = 150.00;
-        
         
         $fraudCheckService = $this->getMockBuilder(FraudCheckService::class)
             ->setMethods(['check'])
@@ -113,16 +112,14 @@ class TransferServiceTest extends TestCase
 
         $transferService = new TransferService($fraudCheckService, $balanceService, $notificationService, $userService);
         $transferService->transfer($from, $to, $amount);
-    
     }
 
-    public function testTransferShouldReturnExceptionWhenTransferIsNotAuthorized()
+    public function testTransferShouldThrowExceptionWhenTransferIsNotAuthorized()
     {
         $this->expectException(NotAuthorizedTransferException::class);
         $from = new User();
         $to = new User();
         $amount = 150.00;
-        
         
         $fraudCheckService = $this->getMockBuilder(FraudCheckService::class)
             ->setMethods(['check'])
@@ -162,16 +159,14 @@ class TransferServiceTest extends TestCase
 
         $transferService = new TransferService($fraudCheckService, $balanceService, $notificationService, $userService);
         $transferService->transfer($from, $to, $amount);
-    
     }
 
-    public function testTransferShouldReturnExceptionWhenHaveSomeErrorInDataBaseTransaction()
+    public function testTransferShouldThrowExceptionWhenHaveSomeErrorInDataBaseConnection()
     {
         $this->expectException(Throwable::class);
         $from = new User();
         $to = new User();
         $amount = 150.00;
-        
         $emptyFrom = new User();
         
         $fraudCheckService = $this->getMockBuilder(FraudCheckService::class)
@@ -216,19 +211,28 @@ class TransferServiceTest extends TestCase
             ->with($from)
             ->willReturn(false);
 
-        $transferService = new TransferService($fraudCheckService, $balanceService, $notificationService, $userService);
+        $transferService = $this->getMockBuilder(TransferService::class)
+            ->setConstructorArgs([$fraudCheckService, $balanceService, $notificationService, $userService])
+            ->setMethods(['beginTransaction', 'commit', 'rollBack'])
+            ->getMock();
+        $transferService->expects($this->once())
+            ->method('beginTransaction')
+            ->willThrowException(new ErrorException());
+
+        $transferService->expects($this->never())
+            ->method('commit');
+        $transferService->expects($this->once())
+            ->method('rollback');
+
         $transferService->transfer($from, $to, $amount);
-    
     }
     
-    public function testTransferShouldReturnExceptionWhenNotificationWasNotSent()
+    public function testTransferShouldThrowExceptionWhenNotificationWasNotSent()
     {
         $this->expectException(NotificationTransferException::class);
-
         $from = new User();
         $to = new User();
         $amount = 150.00;
-        
         $emptyFrom = new User();
         
         $fraudCheckService = $this->getMockBuilder(FraudCheckService::class)
@@ -285,6 +289,68 @@ class TransferServiceTest extends TestCase
             ->method('rollback');
 
         $transferService->transfer($from, $to, $amount);
-    
+    }
+
+    public function testTransferShouldSuccessufullyPerformWhenEverythingIsOk()
+    {
+        $from = new User();
+        $to = new User();
+        $amount = 150.00;
+        $emptyFrom = new User();
+        
+        $fraudCheckService = $this->getMockBuilder(FraudCheckService::class)
+            ->setMethods(['check'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $fraudCheckService->expects($this->once())
+            ->method('check')
+            ->with($from, $to, $amount)
+            ->willReturn(true);
+        
+        $balanceService = $this->getMockBuilder(BalanceService::class)
+            ->setMethods(['check','withdraw','deposit'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $balanceService->expects($this->once())
+            ->method('check')
+            ->with($from, $amount)
+            ->willReturn(true);
+        $balanceService->expects($this->once())
+            ->method('withdraw')
+            ->with($from, $amount);
+        $balanceService->expects($this->once())
+            ->method('deposit')
+            ->with($from, $amount);            
+        
+        $notificationService = $this->getMockBuilder(NotificationService::class)
+            ->setMethods(['sent'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $notificationService->expects($this->once())        
+            ->method('sent')
+            ->with($from, $to, $amount)
+            ->willReturn(true);
+            
+        $userService = $this->getMockBuilder(UserService::class)
+            ->setMethods(['isEligibleToTransfer'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $userService->expects($this->once())
+            ->method('isEligibleToTransfer')
+            ->with($from)
+            ->willReturn(false);
+
+        $transferService = $this->getMockBuilder(TransferService::class)
+            ->setConstructorArgs([$fraudCheckService, $balanceService, $notificationService, $userService])
+            ->setMethods(['beginTransaction', 'commit', 'rollBack'])
+            ->getMock();
+        $transferService->expects($this->once())
+            ->method('beginTransaction');
+        $transferService->expects($this->once())
+            ->method('commit');
+        $transferService->expects($this->never())
+            ->method('rollback');
+
+        $transferService->transfer($from, $to, $amount);
     }
 }

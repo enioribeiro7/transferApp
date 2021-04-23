@@ -6,41 +6,54 @@ use App\User;
 use App\Services\FraudCheckService;
 use App\Services\BalanceService;
 use App\Services\NotificationService;
+use App\Services\userService;
+use Illuminate\Support\Facades\DB;
 
 class TransferService 
 {
 
     
-    public function __construct(FraudCheckService $fraudCheckService, BalanceService $balanceService, NotificationService $notificationService) 
-    {
+    public function __construct(
+        FraudCheckService $fraudCheckService, 
+        BalanceService $balanceService,
+        NotificationService $notificationService,
+        UserService $userService
+    ) {
         $this->fraudCheckService = $fraudCheckService;
         $this->balanceService = $balanceService;
         $this->notificationService = $notificationService;
+        $this->userService = $userService;
     }
 
     public function transfer(User $from, User $to, float $amount) {
         
-        //check saldo
+        if($this->userService->isEligibleToTransfer($from)){
+            throw new \App\Exceptions\NotElegibleToTransferException('Payer not allowed to tranfer!');
+        }
+        
         $hasBalance = $this->balanceService->check($from, $amount);
-
-        if ($hasBalance == false) {
+        if (!$hasBalance) {
             throw new \App\Exceptions\NotEnoughBalanceException('Not Balance Suficient');
         }
-        
+          
         //service de autorização
-        $authorization = $this->fraudCheckService->check($from, $to, $amount);
+        $isAuthorized = $this->fraudCheckService->check($from, $to, $amount);
 
-        if ($authorization == false) {
-            
+        if (!$isAuthorized) {
             throw new \App\Exceptions\NotAuthorizedTransferException('Transfer not Allowed');
         }
-
-        //Remove/adiciona Saldo do $from para $to
-        $removeBalance = $this->balanceService->remove($from, $amount);
-        $addBalance = $this->balanceService->add($to, $amount);
+       
+        try {
+            $this->beginTransaction();
+            $this->balanceService->withdraw($from, $amount);
+            $this->balanceService->deposit($to, $amount);
+            $this->commit();
+        } catch (\Throwable $exception) {            
+            $this->rollBack();
+            throw $exception;
+        }
 
         
-        //Envia notificação
         $notification = $this->notificationService->sent($from, $to, $amount);
         
         if ($notification == false) {
@@ -51,5 +64,18 @@ class TransferService
 
     }
 
+    protected function beginTransaction(): void
+    {
+        DB::beginTransaction();
+    }
 
+    protected function commit(): void
+    {
+        DB::commit();
+    }
+
+    protected function rollBack(): void
+    {
+        DB::rollBack();
+    }      
 }
