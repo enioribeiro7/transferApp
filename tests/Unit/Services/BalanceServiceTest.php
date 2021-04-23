@@ -124,7 +124,7 @@ class BalanceServiceTest extends TestCase
         $result = $service->withdraw($user, $amount);
     }
 
-    public function testWithdrawWhenBalanceIsNull()
+    public function testWithdrawShouldThrowExceptionWhenBalanceIsNull()
     {
         $this->expectException(NotEnoughBalanceException::class);
 
@@ -184,7 +184,7 @@ class BalanceServiceTest extends TestCase
         $result = $service->deposit($user, $amount);
     }
     
-    public function testDepositWhenBalanceIsNull()
+    public function testDepositShouldThrowExceptionWhenBalanceIsNull()
     {
         $this->expectException(NotEnoughBalanceException::class);
 

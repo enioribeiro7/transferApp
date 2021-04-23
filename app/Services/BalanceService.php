@@ -2,7 +2,9 @@
 
 namespace App\Services;
 
+use App\Exceptions\NotEnoughBalanceException;
 use App\Repositories\BalanceRepository;
+use App\User;
 
 class BalanceService 
 {
@@ -12,33 +14,38 @@ class BalanceService
         $this->balanceRepository = $balanceRepository;
     }
 
-
-    public function check($from, $amount): bool
+    public function check(User $from, float $amount): bool
     {
-
-        //chama o repositorio para devolver o saldo do cliente
         $balanceUser = $this->balanceRepository->getBalanceByUserUuid($from->uuid);
         
-        //faz operação para saber se tem saldo
-        if (floatval($balanceUser) >= floatval($amount)) {
+        if (floatval($balanceUser->balance) >= floatval($amount)) {
             return true;
         }
         
         return false;
-        
     }
     
-    public function remove($from, $amount): bool
+    public function withdraw(User $from, float $amount): void
     {
-        $balanceUser = $this->balanceRepository->removeBalance($from->uuid, $amount);
+        $balance = $this->balanceRepository->getBalanceByUserUuid($from->uuid);
         
-        return true;
+        if($balance == null){
+            throw new NotEnoughBalanceException('Not Balance Suficient for withdraw');
+        }
+        
+        $balance->balance = floatval($balance->balance) - $amount;
+        $this->balanceRepository->save($balance);
     }
     
-    public function add($to, $amount): bool
+    public function deposit(User $to, float $amount): void
     {
-        $balanceUser = $this->balanceRepository->addBalance($to->uuid, $amount);
+        $balance = $this->balanceRepository->getBalanceByUserUuid($to->uuid);
+        
+        if($balance == null){
+            throw new NotEnoughBalanceException('Not Balance Suficient for Deposit');
+        }
 
-        return true;
+        $balance->balance = floatval($balance->balance) + $amount;
+        $this->balanceRepository->save($balance);
     }
 }
