@@ -70,15 +70,14 @@ class NotificationServiceTest extends TestCase
             ->with($from, $to, $amount)
             ->willReturn($notificationResult);
 
-        $notificationTransferEmailJob = $this->getMockBuilder(NotificationTransferEmailJob::class)
-            ->setMethods(['trigger'])
-            ->disableOriginalConstructor()
+        $notificationService = $this->getMockBuilder(NotificationService::class)
+            ->setMethods(['notify'])
+            ->setConstructorArgs([$notificationClient])
             ->getMock();
-        $notificationTransferEmailJob->expects($this->once())
-            ->method('trigger')
+        $notificationService->expects($this->once())
+            ->method('notify')
             ->with($from, $to, $amount);
-            
-        $notificationService = new NotificationService($notificationClient, $notificationTransferEmailJob);
+    
         $result = $notificationService->sent($from, $to, $amount);
 
         $this->assertEquals(false, $result);

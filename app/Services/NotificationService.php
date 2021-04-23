@@ -10,12 +10,8 @@ use App\User;
 class NotificationService 
 {
 
-    public function __construct(
-        NotificationClient $notificationClient,
-        NotificationTransferEmailJob $notificationTransferEmailJob
-    ) {
+    public function __construct(NotificationClient $notificationClient) {
         $this->notificationClient = $notificationClient;
-        $this->notificationTransferEmailJob = $notificationTransferEmailJob;
     }
 
 
@@ -25,9 +21,15 @@ class NotificationService
         $wasSent = $result->wasSent();
 
         if (!$wasSent) {
-            $this->notificationTransferEmailJob->trigger($from, $to, $amount);
+            $this->notify($from, $to, $amount);
         }
-
+        
         return $wasSent;
+    }
+    
+    protected function notify(User $from,User $to, float $amount)
+    {
+        NotificationTransferEmailJob::dispatch($from, $to, $amount)
+            ->delay(now()->addSeconds('15'));
     }
 }    

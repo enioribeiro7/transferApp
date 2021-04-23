@@ -45,10 +45,4 @@ class NotificationTransferEmailJob implements ShouldQueue
         Mail::send(new NotificationTransferSentMail($this->de, $this->para, $this->amount));
         Mail::send(new NotificationTransferReceivedMail($this->de, $this->para, $this->amount));
     }
-    
-    public function trigger(User $from, User $to, float $amount)
-    {
-        self::dispatch($from, $to, $amount)->delay(now()->addSeconds('15'));
-    }
-
 }
