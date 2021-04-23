@@ -20,4 +20,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 //Transfer Routes
-Route::post('/transfer/action', 'TransferController@transferAction')->name('transferAction');
+Route::post('/transfer', 'TransferController@transferAction')->name('transferAction');
