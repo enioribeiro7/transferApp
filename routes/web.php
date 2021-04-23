@@ -34,5 +34,3 @@ Route::get('/email/notification', function(){
     //\Illuminate\Support\Facades\Mail::send(new NotificationTransferSentMail($user));
 
 });
-
-Route::post('/insert/new/user', 'UserController@insertNewUser')->name('insertNewUser');
