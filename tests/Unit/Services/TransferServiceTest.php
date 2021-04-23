@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Services;
 
+use App\Exceptions\NotAuthorizedTransferException;
 use App\Exceptions\NotElegibleToTransferException;
 use App\Exceptions\NotEnoughBalanceException;
 use App\Services\BalanceService;
@@ -89,6 +90,55 @@ class TransferServiceTest extends TestCase
             ->method('check')
             ->with($from, $amount)
             ->willReturn(false);
+        
+        $notificationService = $this->getMockBuilder(NotificationService::class)
+            ->setMethods(['sent'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $notificationService->expects($this->never())        
+            ->method('sent')
+            ->with($from, $to, $amount)
+            ->willReturn(true);
+            
+        $userService = $this->getMockBuilder(UserService::class)
+            ->setMethods(['isEligibleToTransfer'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $userService->expects($this->once())
+            ->method('isEligibleToTransfer')
+            ->with($from)
+            ->willReturn(false);
+
+        $transferService = new TransferService($fraudCheckService, $balanceService, $notificationService, $userService);
+        $transferService->transfer($from, $to, $amount);
+    
+    }
+
+    public function testTransferShouldReturnExceptionWhenTransferIsNotAuthorized()
+    {
+        $this->expectException(NotAuthorizedTransferException::class);
+        $from = new User();
+        $to = new User();
+        $amount = 150.00;
+        
+        
+        $fraudCheckService = $this->getMockBuilder(FraudCheckService::class)
+            ->setMethods(['check'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $fraudCheckService->expects($this->once())
+            ->method('check')
+            ->with($from, $to, $amount)
+            ->willReturn(false);
+        
+        $balanceService = $this->getMockBuilder(BalanceService::class)
+            ->setMethods(['check'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $balanceService->expects($this->once())
+            ->method('check')
+            ->with($from, $amount)
+            ->willReturn(true);
         
         $notificationService = $this->getMockBuilder(NotificationService::class)
             ->setMethods(['sent'])
