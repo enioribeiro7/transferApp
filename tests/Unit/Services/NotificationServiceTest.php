@@ -46,8 +46,6 @@ class NotificationServiceTest extends TestCase
         $result = $notificationService->sent($from, $to, $amount);
 
         $this->assertEquals(true, $result);
-        
-        
     }
 
     public function testSentShouldReturnFalseWhenNotificationWasNotSent()
@@ -84,8 +82,7 @@ class NotificationServiceTest extends TestCase
         $result = $notificationService->sent($from, $to, $amount);
 
         $this->assertEquals(false, $result);
-        
-        
+
     }
   
 }
